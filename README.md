@@ -11,7 +11,6 @@ git clone git@github.com:kmalay/node-pki.git
 ```sh
 yarn
 ```
-or
 ```sh
 npm install
 ```
@@ -19,7 +18,6 @@ npm install
 ```sh
 yarn start
 ```
-or
 ```sh
 npm start
 ```
