@@ -23,8 +23,8 @@ npm start
 ```
 4. Test it out.
 ```sh
-curl --insecure --cert client1.p12:password --cert-type p12 https://localhost:4433
-curl --insecure --cert client2.p12:password --cert-type p12 https://localhost:4433
+curl --insecure --cert certs/client1.p12:password --cert-type p12 https://localhost:4433
+curl --insecure --cert certs/client2.p12:password --cert-type p12 https://localhost:4433
 ```
 
 The request with `client1.p12` will be allowed, and the request with `client2.p12` will be denied.

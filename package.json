@@ -11,11 +11,22 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "dotenv": "^6.2.0",
     "express": "^4.16.4",
+    "jwt-simple": "^0.5.5",
+    "morgan": "^1.9.1",
     "passport": "^0.4.0",
-    "passport-client-cert": "^2.1.0"
+    "passport-client-cert": "^2.1.0",
+    "passport-jwt": "^4.0.0",
+    "pg": "^7.7.1"
   },
   "devDependencies": {
-    "nodemon": "^1.18.9"
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "nodemon": "^1.18.9",
+    "supertest": "^3.3.0",
+    "supertest-as-promised": "^4.0.2"
   }
 }
