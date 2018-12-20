@@ -24,10 +24,10 @@ yarn
 npm install
 ```
 5. Create an `.env` file that contains the following.
+**Note:** Feel free to replace the `abc123` with any random alphanumeric string.  This is a secret key used to encode the Javascript Web Tokens for establishing a user session.
 ```sh
 JWT_SECRET=abc123
 ```
-**Note:** Feel free to replace the `abc123` with any random alphanumeric string.  This is a secret key used to encode the Javascript Web Tokens for establishing a user session.  
 6. Run the app.
 ```sh
 yarn start
