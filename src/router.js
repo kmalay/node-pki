@@ -7,9 +7,8 @@ const passport = require('passport');
 const requireAuth = passport.authenticate('jwt', { session: false });
 const requireSignin = passport.authenticate('client-cert', { session: false });
 
-
 module.exports = app => {
-  app.get('/', requireAuth, function(req, res) {
+  app.get('/', requireAuth, (req, res) => {
     res.send({ message: 'Super secret code is ABC123' });
   });
 

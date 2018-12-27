@@ -53,16 +53,15 @@ const jwtOptions = {
 
 // Create JWT Strategy
 const jwtLogin = new JwtStrategy(jwtOptions, function(payload, done) {
-	// See if the user ID in the payload exists in our database
+	// See if the user CN in the payload exists in our database
 	// If it does, call 'done' with that user
 	// otherwise, call 'done' without a user object
-	User.findById(payload.sub).then(function(user) {
-		if (user) {
-			done(null, user);
-		} else {
-			done(null, false);
-		}
-	});
+  db.query('select id, cn, first_name, last_name from users where cn = $1', [payload.sub])
+	  .then(response => {
+      const user = response.rows[0] || null;
+      done(null, user);
+    })
+	  .catch(e => console.error(e.stack))
 })
 
 // Tell passport to use this Strategy
