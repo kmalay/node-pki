@@ -14,4 +14,7 @@ module.exports = app => {
 
   app.post('/signin', jsonParser);
   app.post('/signin', requireSignin, AuthController.signin);
+
+  app.post('/signup', jsonParser);
+  app.post('/signup', AuthController.signup);
 }
