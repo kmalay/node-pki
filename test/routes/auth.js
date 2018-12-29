@@ -1,74 +1,40 @@
 const fs = require('fs');
 const path = require('path');
 
+const options1 = {
+  ca: fs.readFileSync('certs/ca-crt.pem'),
+  key: fs.readFileSync('certs/client1-key.pem'),
+  cert: fs.readFileSync('certs/client1-crt.pem')
+};
+const agent1 = require('supertest').agent('https://localhost:4433', options1);
+
+const options2 = {
+  ca: fs.readFileSync('certs/ca-crt.pem'),
+  key: fs.readFileSync('certs/client2-key.pem'),
+  cert: fs.readFileSync('certs/client2-crt.pem')
+};
+const agent2 = require('supertest').agent('https://localhost:4433', options2);
+
+
 describe('Routes: auth', () => {
-
-  const certDir = 'certs';
-  const caCert = fs.readFileSync(path.join(certDir, 'ca-crt.pem'));
-  const certClient1 = fs.readFileSync(path.join(certDir, 'client1.p12'));
-  const certClient2 = fs.readFileSync(path.join(certDir, 'client2.p12'));
-  const clientCert = fs.readFileSync(path.join(certDir, 'client1-crt.pem'));
-  const clientKey = fs.readFileSync(path.join(certDir, 'client1-key.pem'));
-
   describe('POST /signin', () => {
     it('should be able to signin with a valid PKI and a user account', done => {
-      const options = {
-        pfx: certClient1,
-        passphrase: 'password',
-        ca: caCert,
-        agentOptions: {
-          cert: clientCert,
-          key: clientKey,
-          pfx: certClient1,
-          passphrase: 'password',
-          ca: caCert
-        }
-      };
-
-      request
-        .post('/signin', options)
+      agent1
+        .post('/signin')
         .expect(200)
         .end((err, res) => {
           if (err) return done(err);
-          var response = JSON.parse(res.text);
-          expect(response.length).to.equal(1);
+          const token = JSON.parse(res.text).token;
+          expect(token).to.be.a('string');
           done();
         });
-
-      // request
-      //   .post('/signin')
-      //   .pfx(certClient1)
-      //   .ca(caCert)
-      //   .expect(200)
-      //   .end((err, res) => {
-      //     if (err) return done(err);
-      //     var response = JSON.parse(res.text);
-      //     expect(response.length).to.equal(1);
-      //     done();
-      //   });
     });
   });
 
-
   describe('POST /signin', () => {
     it('should NOT be able to signin with a valid PKI but no user account', done => {
-      const options = {
-        uri: 'https://localhost:4433/signin',
-        pfx: certClient2,
-        passphrase: 'password',
-        ca: caCert,
-        agentOptions: {
-          pfx: certClient2,
-          passphrase: 'password',
-          ca: caCert,
-          securityOptions: 'SSL_OP_NO_SSLv3'
-        }
-      };
-
-      request
+      agent2
         .post('/signin')
-        .pfx(certClient2)
-        .ca(caCert)
         .expect(401)
         .end((err, res) => {
           if (err) return done(err);
@@ -79,4 +45,49 @@ describe('Routes: auth', () => {
     });
   });
 
+  describe('POST /signup', () => {
+    it('should NOT be able to signup without the required fields', done => {
+      const user = {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
+        phoneNumber: null
+      };
+
+      agent1
+        .post('/signup')
+        .send(user)
+        .set('Accept', 'application/json')
+        .expect(422)
+        .end((err, res) => {
+          if (err) return done(err);
+          var response = JSON.parse(res.text).error;
+          expect(response).to.equal('You must provide email, first name, last name, and phone number.');
+          done();
+        });
+    });
+  });
+
+  describe('POST /signup', () => {
+    it('should be able to signup without the required fields', done => {
+      const user = {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
+        phoneNumber: '555-555-5555'
+      };
+
+      agent1
+        .post('/signup')
+        .send(user)
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end((err, res) => {
+          if (err) return done(err);
+          var response = res.text;
+          expect(response).to.equal('Account request created');
+          done();
+        });
+    });
+  });
 });

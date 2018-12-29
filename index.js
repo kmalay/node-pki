@@ -19,7 +19,7 @@ var options = {
   cert: fs.readFileSync(path.join(certDir, 'server-crt.pem')),
   ca: fs.readFileSync(path.join(certDir, 'ca-crt.pem')),
   requestCert: true,
-  rejectUnauthorized: false
+  rejectUnauthorized: true
 };
 
 const app = express();
