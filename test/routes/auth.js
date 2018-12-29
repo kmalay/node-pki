@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const db = require('../../src/db');
 
 const options1 = {
   ca: fs.readFileSync('certs/ca-crt.pem'),
@@ -17,17 +18,18 @@ const agent2 = require('supertest').agent('https://localhost:4433', options2);
 
 
 describe('Routes: auth', () => {
+
   describe('POST /signin', () => {
     it('should be able to signin with a valid PKI and a user account', done => {
       agent1
         .post('/signin')
         .expect(200)
-        .end((err, res) => {
-          if (err) return done(err);
+        .then(res => {
           const token = JSON.parse(res.text).token;
           expect(token).to.be.a('string');
           done();
-        });
+        })
+        .catch(err => done(err))
     });
   });
 
@@ -36,12 +38,12 @@ describe('Routes: auth', () => {
       agent2
         .post('/signin')
         .expect(401)
-        .end((err, res) => {
-          if (err) return done(err);
-          var response = res.text;
+        .then(res => {
+          const response = res.text;
           expect(response).to.equal('Unauthorized');
           done();
-        });
+        })
+        .catch(err => done(err))
     });
   });
 
@@ -59,17 +61,17 @@ describe('Routes: auth', () => {
         .send(user)
         .set('Accept', 'application/json')
         .expect(422)
-        .end((err, res) => {
-          if (err) return done(err);
-          var response = JSON.parse(res.text).error;
+        .then(res => {
+          const response = JSON.parse(res.text).error;
           expect(response).to.equal('You must provide email, first name, last name, and phone number.');
           done();
-        });
+        })
+        .catch(err => done(err))
     });
   });
 
   describe('POST /signup', () => {
-    it('should be able to signup without the required fields', done => {
+    it('should be able to signup with the required fields', done => {
       const user = {
         firstName: 'John',
         lastName: 'Doe',
@@ -77,17 +79,22 @@ describe('Routes: auth', () => {
         phoneNumber: '555-555-5555'
       };
 
-      agent1
-        .post('/signup')
-        .send(user)
-        .set('Accept', 'application/json')
-        .expect(200)
-        .end((err, res) => {
-          if (err) return done(err);
-          var response = res.text;
-          expect(response).to.equal('Account request created');
-          done();
-        });
+      db.query(`delete from signup where email like 'john.doe%' `)
+        .then(response => {
+          agent1
+            .post('/signup')
+            .send(user)
+            .set('Accept', 'application/json')
+            .expect(200)
+            .then(res => {
+              const response = res.text;
+              expect(response).to.equal('Account request created');
+              done()
+            })
+            .catch(err => done(err))
+        })
+        .catch(err => done(err))
     });
   });
+
 });

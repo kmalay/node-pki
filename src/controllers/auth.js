@@ -43,7 +43,7 @@ exports.signup = (req, res, next) => {
 	  .then(response => {
       if (response.rows && response.rows.length > 0) {
 				// console.log('Got existing user', email);
-				return res.status(422).send({ error: 'Email is already in use.' });
+				return res.status(400).send({ error: 'Email is already in use.' });
 			}
 
 			// If record does not exist then create it
