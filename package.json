@@ -6,9 +6,9 @@
   "author": "kmalay <kmalay@blackhawkenterprise.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js",
-    "test": "NODE_ENV=test NODE_TLS_REJECT_UNAUTHORIZED=0 mocha test/**/*.js",
+    "start": "node src/server.js",
+    "dev": "nodemon --watch ./src --ignore ./src/**/*.test.* -x \"npm start\"",
+    "test": "NODE_ENV=test NODE_TLS_REJECT_UNAUTHORIZED=0 mocha src/**/*.test.*",
     "test:watch": "npm run test -- --watch"
   },
   "dependencies": {

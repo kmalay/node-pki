@@ -1,6 +1,6 @@
 const request = require('supertest');
 const chai = require('chai');
-const app = require('../index.js');
+const app = require('../src/server');
 
 global.app = app;
 global.request = request(app);
