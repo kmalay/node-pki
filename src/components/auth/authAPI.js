@@ -10,11 +10,11 @@ const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json({ type: '*/*' })
 
 router.get('/hello', (req, res) => {
-  res.send('Hello World!');
+  res.send({ msg: 'Hello World!' });
 });
 
 router.get('/hello-protected', requireAuth, (req, res) => {
-  res.send({ message: 'Super secret code is ABC123' });
+  res.send({ msg: 'Super secret code is ABC123' });
 });
 
 router.post('/signin', jsonParser);

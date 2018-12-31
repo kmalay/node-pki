@@ -7,9 +7,5 @@ module.exports = app => {
     res.send({ msg: 'Hello World!' });
   });
 
-  app.get('/protected', requireAuth, (req, res) => {
-    res.send({ message: 'This is a protected route.' });
-  });
-
   app.use('/auth', require('./components/auth/authAPI'));
 }

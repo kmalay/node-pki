@@ -10,9 +10,12 @@ const router = require('./router');
 
 const app = express();
 
-app.use(morgan('combined'));
 app.use(cors());
 app.use(passport.initialize());
+
+if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan('combined'));
+}
 
 router(app);
 

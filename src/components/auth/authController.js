@@ -17,12 +17,11 @@ exports.signin = (req, res, next) => {
 	});
 }
 
-exports.signup = (req, res, next) => {
+exports.signup = async (req, res, next) => {
 	// Grab the user properties off of the request.
 	const { firstName, lastName, phoneNumber } = req.body;
 	const cn = req.connection.getPeerCertificate().subject.CN;
 	let email = req.body.email;
-	email = email.toLowerCase();
 
 	// Check for CN string
 	if (!cn) {
@@ -38,27 +37,30 @@ exports.signup = (req, res, next) => {
 		});
 	}
 
+	email = email.toLowerCase();
+
 	// Check to see if a signup record exists with the same email
-	db.query('select * from signup where email = $1', [email])
-	  .then(response => {
-      if (response.rows && response.rows.length > 0) {
-				// console.log('Got existing user', email);
-				return res.status(400).send({ error: 'Email is already in use.' });
-			}
+	try {
+		const response = await db.query('select * from signup where email = $1', [email])
+		if (response.rows && response.rows.length > 0) {
+			// console.log('Got existing user', email);
+			return res.status(400).send({ error: 'Email is already in use.' });
+		}
 
-			// If record does not exist then create it
-			const values = [cn, firstName, lastName, email, phoneNumber];
-			const sql = `
-				insert into signup (cn, first_name, last_name, email, phone_number)
-				values ($1, $2, $3, $4, $5)
-			`;
+		// If record does not exist then create it
+		const values = [cn, firstName, lastName, email, phoneNumber];
+		const sql = `
+			insert into signup (cn, first_name, last_name, email, phone_number)
+			values ($1, $2, $3, $4, $5)
+		`;
 
-			db.query(sql, values)
-			  .then(response => {
-					// console.log(response.rows[0]);
-		      res.end('Account request created');
-		    })
-				.catch(e => console.error(e.stack))
-    })
-	  .catch(e => console.error(e.stack))
+		try {
+			const insertResult = await db.query(sql, values);
+			res.end('Account request created');
+		} catch(error) {
+			console.error(error.stack)
+		}
+	} catch(error) {
+		console.error(error.stack)
+	}
 }

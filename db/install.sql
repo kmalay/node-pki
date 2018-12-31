@@ -10,8 +10,8 @@ create table users (
 );
 
 insert
-  into users(id, cn, first_name, last_name, email, phone_number)
-values (1, 'client1', 'Client', '1', 'client1@example.com', '555-555-5555');
+  into users(cn, first_name, last_name, email, phone_number)
+values ('client1', 'Client', '1', 'client1@example.com', '555-555-5555');
 
 drop table signup;
 create table signup (
@@ -22,3 +22,7 @@ create table signup (
   email text not null,
   phone_number text not null
 );
+
+insert
+  into signup(cn, first_name, last_name, email, phone_number)
+values ('client1', 'Client', '1', 'client1@example.com', '555-555-5555');

@@ -5,13 +5,14 @@ const ClientCertStrategy = require('passport-client-cert').Strategy;
 const db = require('../db');
 
 // Create a function to lookup a user based on the PKI CN string
-const lookupUser = (cn, done) => {
-  db.query('select id, cn, first_name, last_name from users where cn = $1', [cn])
-	  .then(response => {
-      const user = response.rows[0] || null;
-      done(null, user);
-    })
-	  .catch(e => console.error(e.stack))
+const lookupUser = async (cn, done) => {
+  try {
+    const response = await db.query('select id, cn, first_name, last_name from users where cn = $1', [cn])
+  	const user = response.rows[0] || null;
+    done(null, user);
+  } catch(error) {
+    console.error(error.stack)
+  }
 }
 
 // Create the PKI Strategy
@@ -20,10 +21,10 @@ const pkiLogin = new ClientCertStrategy((cert, done) => {
   let msg = 'Attempting PKI authentication';
 
   if (!subject) {
-    console.log(`${msg} - no subject`);
+    // console.log(`${msg} - no subject`);
     done(null, false);
   } else if (!subject.CN) {
-    console.log(`${msg} - no client CN`);
+    // console.log(`${msg} - no client CN`);
     done(null, false);
   } else {
     const cn = subject.CN;
@@ -32,10 +33,10 @@ const pkiLogin = new ClientCertStrategy((cert, done) => {
       msg = 'Authenticating ' +  cn + ' with certificate';
 
       if (!user) {
-        console.log(`${msg} - user does not exist`);
+        // console.log(`${msg} - user does not exist`);
         done(null, false);
       } else {
-        console.log(`${msg} - user exists`);
+        // console.log(`${msg} - user exists`);
         done(null, user);
       }
     });
@@ -52,16 +53,17 @@ const jwtOptions = {
 }
 
 // Create JWT Strategy
-const jwtLogin = new JwtStrategy(jwtOptions, function(payload, done) {
+const jwtLogin = new JwtStrategy(jwtOptions, async (payload, done) => {
 	// See if the user CN in the payload exists in our database
 	// If it does, call 'done' with that user
 	// otherwise, call 'done' without a user object
-  db.query('select id, cn, first_name, last_name from users where cn = $1', [payload.sub])
-	  .then(response => {
-      const user = response.rows[0] || null;
-      done(null, user);
-    })
-	  .catch(e => console.error(e.stack))
+  try {
+    const response = await db.query('select id, cn, first_name, last_name from users where cn = $1', [payload.sub])
+    const user = response.rows[0] || null;
+    done(null, user);
+  } catch(error) {
+    console.error(error.stack)
+  }
 })
 
 // Tell passport to use this Strategy
